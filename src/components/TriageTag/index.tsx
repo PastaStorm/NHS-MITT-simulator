@@ -1,0 +1,114 @@
+import { type FunctionComponent } from 'preact'
+import { patientById, useAppDispatch, useAppSelector } from '../../store'
+import { setCode, toggleReveal, toggleAction } from '../../store/patients'
+import { type Code, TST } from '../../algorithm'
+import TagRow from './TagRow'
+import TagCell from './TagCell'
+import TagTool from './TagTool'
+import TagCodeButton from './TagCodeButton'
+import Card from '../Card'
+import { useTranslation } from 'react-i18next'
+import { useCallback } from 'preact/hooks'
+import { useHotkey } from '../../hooks'
+
+const TagCodeSelector: FunctionComponent<{ value?: number, onChange: (code: Code) => void }> = ({ value, onChange }) => {
+  const { t } = useTranslation()
+
+  return (
+    <div className="grid grid-cols-4 h-20 text-white cursor-pointer">
+      <TagCodeButton onClick={onChange} value={3} checked={value === 3} title={t('P1 (Red)')} className="bg-red-600" />
+      <TagCodeButton onClick={onChange} value={2} checked={value === 2} title={t('P2 (Yellow)')} className="bg-amber-400" />
+      <TagCodeButton onClick={onChange} value={1} checked={value === 1} title={t('P3 (Green)')} className="bg-green-600" />
+      <TagCodeButton onClick={onChange} value={4} checked={value === 4} title={t('Not Breathing (Silver)')} className="bg-gray-400" />
+    </div>
+  )
+}
+
+const TriageTag: FunctionComponent = () => {
+  const { t } = useTranslation()
+  const currentPatientId = useAppSelector((state) => state.ui.currentPatient)
+  const patient = useAppSelector((state) => patientById(state, currentPatientId ?? 0))
+  const dispatch = useAppDispatch()
+
+  const changeCode = useCallback((code: Code) => {
+    if (currentPatientId === undefined) return
+    dispatch(setCode([currentPatientId, code]))
+  }, [currentPatientId, dispatch])
+
+  const toggleRevealCharacteristic = useCallback((characteristic: string) => {
+    if (currentPatientId === undefined) return
+    dispatch(toggleReveal([currentPatientId, characteristic]))
+  }, [currentPatientId, dispatch])
+
+  const toggleActionButton = useCallback((action: string) => {
+    if (currentPatientId === undefined) return
+    dispatch(toggleAction([currentPatientId, action]))
+  }, [currentPatientId, dispatch])
+
+  useHotkey('1', () => { changeCode(3) }) // P1 = red
+  useHotkey('2', () => { changeCode(2) })
+  useHotkey('3', () => { changeCode(1) }) // P3 = green
+  useHotkey('4', () => { changeCode(4) }) // Not breathing = silver
+
+  if (currentPatientId === undefined) return <></>
+  if (patient === undefined) return <></>
+
+  return (
+    <Card className='h-min'>
+      <TagRow border>
+        <TagCell title={t('Triage tag')} span={9} wrap>
+          <p className='text-sm md:text-base font-normal text-gray-800 leading-snug'>
+            {TST.getVisualDescription(patient)}
+          </p>
+        </TagCell>
+        <TagCell title={t('Age')} span={3}>{t('{{age}} yrs', { age: patient.age })}</TagCell>
+      </TagRow>
+      <TagRow>
+        <TagCell title={t('Breathing')} span={4}>
+          {patient.revealedBreathing ? (patient.breathing ? t('Yes') : t('No')) : '--'}
+        </TagCell>
+        <TagCell title={t('Can walk?')} span={4}>
+          {patient.revealedWalking ? (patient.canWalk ? t('Yes') : t('No')) : '--'}
+        </TagCell>
+        <TagCell title={t('Severe bleeding?')} span={4}>
+          {patient.revealedBleeding ? (patient.severeBleeding ? t('Yes') : t('No')) : '--'}
+        </TagCell>
+      </TagRow>
+      <TagRow>
+        <TagCell title={t('Talking?')} span={4}>
+          {patient.revealedTalking ? (patient.talking ? t('Yes') : t('No')) : '--'}
+        </TagCell>
+        <TagCell title={t('Torso penetrating injury; front or rear?')} span={8}>
+          {patient.revealedPenetrating ? (patient.penetratingTorsoInjury ? t('Yes') : t('No')) : '--'}
+        </TagCell>
+      </TagRow>
+
+      <h4 className='text-xs font-bold uppercase tracking-wider text-gray-500 mt-4 mb-1 px-1'>
+        {t('Characteristics')}
+      </h4>
+      <div className='grid grid-cols-5 h-20 text-white gap-1 mb-2'>
+        <TagTool title={t('Check walking')} label={t('Walking?')} id='reveal-walking' onClick={() => toggleRevealCharacteristic('Walking')} active={patient.revealedWalking} bgColor='bg-blue-600' />
+        <TagTool title={t('Check severe bleeding')} label={t('Severe bleeding?')} id='reveal-bleeding' onClick={() => toggleRevealCharacteristic('Bleeding')} active={patient.revealedBleeding} bgColor='bg-blue-600' />
+        <TagTool title={t('Check talking')} label={t('Talking?')} id='reveal-talking' onClick={() => toggleRevealCharacteristic('Talking')} active={patient.revealedTalking} bgColor='bg-blue-600' />
+        <TagTool title={t('Check penetrating injury')} label={t('Penetrating injury?')} id='reveal-penetrating' onClick={() => toggleRevealCharacteristic('Penetrating')} active={patient.revealedPenetrating} bgColor='bg-blue-600' />
+        <TagTool title={t('Check breathing')} label={t('Breathing?')} id='reveal-breathing' onClick={() => toggleRevealCharacteristic('Breathing')} active={patient.revealedBreathing} bgColor='bg-blue-600' />
+      </div>
+
+      <h4 className='text-xs font-bold uppercase tracking-wider text-gray-500 mt-2 mb-1 px-1'>
+        {t('Actions')}
+      </h4>
+      <div className='grid grid-cols-3 h-20 text-white gap-1 mb-2'>
+        <TagTool title={t('Apply pressure / tourniquet / packing')} label={t('Apply pressure / tourniquet / packing')} id='action-bleeding' onClick={() => toggleActionButton('Bleeding')} active={patient.actionBleeding} bgColor={patient.actionBleeding ? 'bg-red-600' : 'bg-blue-600'} />
+        <TagTool title={t('Place in recovery position')} label={t('Place in recovery position')} id='action-recovery' onClick={() => toggleActionButton('Recovery')} active={patient.actionRecovery} bgColor={patient.actionRecovery ? 'bg-red-600' : 'bg-blue-600'} />
+        <TagTool title={t('CPR if resources allow')} label={t('CPR if resources allow')} id='action-cpr' onClick={() => toggleActionButton('CPR')} active={patient.actionCPR} bgColor={patient.actionCPR ? 'bg-red-600' : 'bg-blue-600'} />
+      </div>
+
+      <h4 className='text-xs font-bold uppercase tracking-wider text-gray-500 mt-2 mb-1 px-1'>
+        {t('Priority')}
+      </h4>
+      <TagCodeSelector value={patient.assignedCode} onChange={(code: Code) => dispatch(setCode([patient.id, code]))} />
+    </Card>
+  )
+}
+
+export default TriageTag

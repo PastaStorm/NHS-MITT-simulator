@@ -1,0 +1,76 @@
+import { type Code } from './algorithm'
+
+export const randomBool = (p: number = 0.5): boolean => {
+  return Math.random() < p
+}
+
+export const randomFloat = (m: number = 0, M: number = 1): number => {
+  return Math.random() * (M - m) + m
+}
+
+export const randomInt = (m: number = 0, M: number = 1): number => (Math.floor(randomFloat(m, M)))
+
+export const cx = (...args: unknown[]): string => args
+  .flat()
+  .filter(x => typeof x === 'string')
+  .join(' ')
+  .trim()
+
+const colors = {
+  0: ['text-gray-500', 'border-gray-500'],
+  1: ['text-green-600', 'border-green-600'],
+  2: ['text-amber-400', 'border-amber-400'],
+  3: ['text-red-600', 'border-red-600'],
+  4: ['text-gray-400', 'border-gray-400']
+} as const
+
+export const codeToColor = (code: Code): readonly [string, string] => colors[code]
+
+const emojis = {
+  1: '🟢',
+  2: '🟡',
+  3: '🔴',
+  4: '⚪️'
+}
+
+export const codeToEmoji = (code: Code): string => emojis[code]
+
+const codeLabels = {
+  1: 'P3 (Green)',
+  2: 'P2 (Yellow)',
+  3: 'P1 (Red)',
+  4: 'Not Breathing (Silver)'
+} as const
+
+export const codeToLabel = (code: Code): string => codeLabels[code]
+
+export const pct = (n: number): string => {
+  if (isNaN(n)) n = 0
+  return `${(n * 100).toFixed(2)}%`
+}
+
+export const localeToFlag = (cc: string): string => {
+  if (cc === 'en') cc = 'eu'
+
+  return cc
+    .toUpperCase()
+    .split('')
+    .map(ch => String.fromCodePoint(ch.charCodeAt(0) + 0x1F1A5))
+    .join('')
+}
+
+export const pick = (keys: string[], object: Record<string, any>): Record<string, any> =>
+  keys.reduce((acc, key) => ({ ...acc, [key]: object[key] }), {})
+
+/* export const useHotkey = (targetKey: string, f: () => void): void => {
+  useEffect(() => {
+    const downHandler = ({ key }: KeyboardEvent): void => {
+      if (key === targetKey) f()
+    }
+
+    window.addEventListener('keydown', downHandler)
+    return () => {
+      window.removeEventListener('keydown', downHandler)
+    }
+  }, [targetKey, f])
+} */
