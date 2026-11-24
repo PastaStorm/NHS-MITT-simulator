@@ -1,7 +1,7 @@
 import { type FunctionComponent } from 'preact'
 import Card, { CardHeader } from './Card'
 import { patientById, useAppDispatch, useAppSelector } from '../store'
-import { Feedback, TST } from '../algorithm'
+import { Feedback, MITT } from '../algorithm'
 import { toggleFeedback } from '../store/ui'
 import Icon from './Icon'
 import { useTranslation } from 'react-i18next'
@@ -22,53 +22,53 @@ const FeedbackCard: FunctionComponent = () => {
     switch (fb) {
       case Feedback.CODE_NOT_ASSIGNED: return t('Incorrect: You did not assign a priority to this casualty.')
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      case Feedback.CODE_CORRECT: return t('Correct TST Priority: {{c}}', { c: t(codeToLabel(patient!.code)) })
+      case Feedback.CODE_CORRECT: return t('Correct MITT Priority: {{c}}', { c: t(codeToLabel(patient!.code)) })
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      case Feedback.CODE_INCORRECT: return t('Incorrect: TST indicates {{c}}; you assigned {{a}}.', { c: t(codeToLabel(patient!.code)), a: t(codeToLabel(patient!.assignedCode!)) })
-      case Feedback.NOT_BREATHING: return t('Not breathing: classify as Not Breathing (Silver).')
-      case Feedback.WALKING_P3: return t('Can walk: classify as P3 (Green).')
+      case Feedback.CODE_INCORRECT: return t('Incorrect: MITT indicates {{c}}; you assigned {{a}}.', { c: t(codeToLabel(patient!.code)), a: t(codeToLabel(patient!.assignedCode!)) })
+      case Feedback.CATASTROPHIC_BLEEDING_P1: return t('Catastrophic bleeding: classify as P1 (Red).')
+      case Feedback.WALKING_P3: return t('Walking: classify as P3 (Green).')
       case Feedback.WALKING_P3_NOTE: return t('P3 casualties should be directed towards a place of safety.')
-      case Feedback.AGE_UNDER_TWO_P1: return t('Age under 2: classify as P1 (Red). The majority of children under 2 are unlikely to be able to walk or talk independently so all under 2s should be triaged as P1. (Ref: TST for non clinical responders supplementary information)')
-      case Feedback.SEVERE_BLEEDING_P1: return t('Severe bleeding: classify as P1 (Red).')
-      case Feedback.NOT_TALKING_P1: return t('Not talking: classify as P1 (Red).')
-      case Feedback.PENETRATING_INJURY_P1: return t('Talking with a penetrating injury to the torso: classify as P1 (Red).')
+      case Feedback.DEAD_NOT_BREATHING: return t('Not breathing: classify as Dead (Black).')
+      case Feedback.DEAD_RECOVERY_NOTE: return t('Best Practice is Place in Recovery Position.')
+      case Feedback.NO_VOICE_P1: return t('Does not respond to voice: classify as P1 (Red).')
+      case Feedback.AGE_UNDER_TWO_P1: return t('Aged 2 years or under: classify as P1 (Red).')
+      case Feedback.BREATHING_RATE_P1: return t('Breathing rate outside 12–23 /min ({{rr}} /min): classify as P1 (Red).', { rr: patient?.breathingRate })
+      case Feedback.HEART_RATE_P1: return t('Heart rate 100 bpm or more ({{hr}} bpm): classify as P1 (Red).', { hr: patient?.heartRate })
       case Feedback.OTHERWISE_P2: return t('No P1 or P3 criteria apply: classify as P2 (Yellow).')
-      case Feedback.SEVERE_BLEEDING_ACTION: return t('Incorrect: You failed to complete the required action for this casualty: you failed to apply pressure / tourniquet / packing.')
-      case Feedback.SEVERE_BLEEDING_ACTION_CORRECT: return t('Correct: You applied pressure / tourniquet / packing.')
-      case Feedback.NOT_BREATHING_ACTION: return t('Incorrect: You failed to complete the required action for this casualty: you failed to carry out CPR if resources allow.')
-      case Feedback.NOT_BREATHING_ACTION_CORRECT: return t('Correct: You carried out CPR if resources allow.')
-      case Feedback.NOT_TALKING_P1_ACTION: return t('Incorrect: You failed to complete the required action for this casualty: you failed to place in recovery position.')
-      case Feedback.NOT_TALKING_P1_ACTION_CORRECT: return t('Correct: You placed in recovery position.')
-      case Feedback.SEVERE_BLEEDING_RECOVERY_NOTE: return t('Although technically not part of the TST algorithm if the casualty is unconscious then it is best practice to place them in the recovery position.')
-      case Feedback.SEVERE_BLEEDING_WALKING: return t('Severe bleeding while walking: classify as P1 (Red). Critically injured casualties who are walking should be sat down and triaged/treated as P1. Ref: NARU TST Non Clinical Responders Supplementary Information.')
-      case Feedback.ACTION_INCORRECT: return t('Incorrect: You carried out an unnecessary or improper action for this casualty.')
-      case Feedback.MISSING_ACTION: return t('Incorrect: You missed a required action for this casualty.')
-      case Feedback.OVERTRIAGED_BREATHING: return t('Incorrect: You overtriaged by checking breathing when the casualty was talking.')
-      case Feedback.OVERTRIAGED_SEVERE_BLEEDING: return t('Incorrect: You overtriaged; a severe bleed is triaged as P1 so the additional checks are irrelevant.')
-      case Feedback.OVERTRIAGED_WALKING: return t('Incorrect: You overtriaged; a walking casualty without severe bleeding is triaged as P3 so the additional checks are irrelevant.')
-      case Feedback.MISSING_PENETRATING_CHECK: return t('Incorrect: You failed to check for a penetrating injury.')
-      case Feedback.OVERTRIAGED_NOT_TALKING: return t('Incorrect: You overtriaged by checking for a penetrating injury when the casualty was not talking.')
-      case Feedback.OVERTRIAGED_AGE_UNDER_TWO: return t('Incorrect: You overtriaged; all children under 2 are triaged as P1 so the additional checks are irrelevant.')
-      case Feedback.ACTION_BLEEDING_INCORRECT: return t('Incorrect: You applied pressure / tourniquet / packing when there was no severe bleeding.')
-      case Feedback.ACTION_RECOVERY_TALKING_INCORRECT: return t('Incorrect: You attempted to place a talking casualty in the recovery position.')
-      case Feedback.ACTION_CPR_BREATHING_INCORRECT: return t('Incorrect: You attempted CPR on a breathing casualty.')
+      case Feedback.BLEEDING_ACTION_MISSING: return t('Incorrect: You failed to complete the required action for this casualty: Pressure Dressing, Tourniquet, Haemostatic Packing.')
+      case Feedback.BLEEDING_ACTION_CORRECT: return t('Correct: You applied Pressure Dressing, Tourniquet, Haemostatic Packing.')
+      case Feedback.BLEEDING_ACTION_INCORRECT: return t('Incorrect: You applied Pressure Dressing, Tourniquet, Haemostatic Packing when there was no catastrophic bleeding.')
+      case Feedback.RECOVERY_ACTION_MISSING: return t('Incorrect: You failed to complete the required action for this casualty: Place in Recovery Position.')
+      case Feedback.RECOVERY_ACTION_CORRECT: return t('Correct: You placed the casualty in the Recovery Position.')
+      case Feedback.RECOVERY_ACTION_INCORRECT: return t('Incorrect: You attempted to place a casualty who responds to voice in the Recovery Position.')
+      case Feedback.OVERTRIAGED_CATASTROPHIC_BLEEDING: return t('Incorrect: You overtriaged; catastrophic bleeding is triaged as P1 so the additional checks are irrelevant.')
+      case Feedback.OVERTRIAGED_WALKING: return t('Incorrect: You overtriaged; a walking casualty is triaged as P3 so the additional checks are irrelevant.')
+      case Feedback.OVERTRIAGED_DEAD: return t('Incorrect: You overtriaged; a non-breathing casualty is triaged as Dead (Black) so the additional checks are irrelevant.')
+      case Feedback.OVERTRIAGED_NO_VOICE: return t('Incorrect: You overtriaged; a casualty who does not respond to voice is triaged as P1 so the additional checks are irrelevant.')
+      case Feedback.OVERTRIAGED_AGE_UNDER_TWO: return t('Incorrect: You overtriaged; casualties aged 2 years or under are triaged as P1 so the additional checks are irrelevant.')
+      case Feedback.OVERTRIAGED_BREATHING_RATE: return t('Incorrect: You overtriaged by checking heart rate when the breathing rate was already outside 12–23 /min (P1).')
+      case Feedback.MISSING_CHECK_WALKING: return t('Incorrect: You failed to check if the casualty was walking.')
+      case Feedback.MISSING_CHECK_BREATHING: return t('Incorrect: You failed to check if the casualty was breathing.')
+      case Feedback.MISSING_CHECK_VOICE: return t('Incorrect: You failed to check if the casualty responds to voice.')
+      case Feedback.MISSING_CHECK_BREATHING_RATE: return t('Incorrect: You failed to check the casualty’s breathing rate.')
+      case Feedback.MISSING_CHECK_HEART_RATE: return t('Incorrect: You failed to check the casualty’s heart rate.')
     }
   }
 
   if (currentPatientId === undefined) return <></>
   if (patient === undefined) return <></>
 
-  const feedback = TST.getFeedback(patient)
+  const feedback = MITT.getFeedback(patient)
   const [firstFeedback] = feedback
   const reasonIndex = feedback.findIndex(fb => [
-    Feedback.NOT_BREATHING,
+    Feedback.CATASTROPHIC_BLEEDING_P1,
     Feedback.WALKING_P3,
+    Feedback.DEAD_NOT_BREATHING,
+    Feedback.NO_VOICE_P1,
     Feedback.AGE_UNDER_TWO_P1,
-    Feedback.SEVERE_BLEEDING_P1,
-    Feedback.NOT_TALKING_P1,
-    Feedback.PENETRATING_INJURY_P1,
-    Feedback.OTHERWISE_P2,
-    Feedback.SEVERE_BLEEDING_WALKING
+    Feedback.BREATHING_RATE_P1,
+    Feedback.HEART_RATE_P1,
+    Feedback.OTHERWISE_P2
   ].includes(fb))
 
   const lines: string[] = []

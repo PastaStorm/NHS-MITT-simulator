@@ -21,7 +21,7 @@ const colors = {
   1: ['text-green-600', 'border-green-600'],
   2: ['text-amber-400', 'border-amber-400'],
   3: ['text-red-600', 'border-red-600'],
-  4: ['text-gray-400', 'border-gray-400']
+  4: ['text-gray-900', 'border-gray-900']
 } as const
 
 export const codeToColor = (code: Code): readonly [string, string] => colors[code]
@@ -30,7 +30,7 @@ const emojis = {
   1: '🟢',
   2: '🟡',
   3: '🔴',
-  4: '⚪️'
+  4: '⚫️'
 }
 
 export const codeToEmoji = (code: Code): string => emojis[code]
@@ -39,7 +39,7 @@ const codeLabels = {
   1: 'P3 (Green)',
   2: 'P2 (Yellow)',
   3: 'P1 (Red)',
-  4: 'Not Breathing (Silver)'
+  4: 'Dead (Black)'
 } as const
 
 export const codeToLabel = (code: Code): string => codeLabels[code]
@@ -61,16 +61,3 @@ export const localeToFlag = (cc: string): string => {
 
 export const pick = (keys: string[], object: Record<string, any>): Record<string, any> =>
   keys.reduce((acc, key) => ({ ...acc, [key]: object[key] }), {})
-
-/* export const useHotkey = (targetKey: string, f: () => void): void => {
-  useEffect(() => {
-    const downHandler = ({ key }: KeyboardEvent): void => {
-      if (key === targetKey) f()
-    }
-
-    window.addEventListener('keydown', downHandler)
-    return () => {
-      window.removeEventListener('keydown', downHandler)
-    }
-  }, [targetKey, f])
-} */

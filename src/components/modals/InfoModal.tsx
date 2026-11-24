@@ -8,20 +8,9 @@ const InfoModal: FunctionComponent = () => (
   <Modal name={INFO_MODAL_ID} title='About'>
     <div className="text-lg/6">
       <p className="mb-2">
-        Welcome to <strong>NHS TST Simulator</strong>! This app allows you to
+        Welcome to <strong>NHS MITT Simulator</strong>! This app allows you to
         learn and gain familiarity with triage protocols for mass casualty
-        incidents. It uses the NHS Ten Second Triage (TST) tool.
-      </p>
-      <p className="mb-2">
-        For the TST Tool{' '}
-        <a
-          className="underline underline-offset-2"
-          href="https://www.england.nhs.uk/wp-content/uploads/2023/04/PRN00365iv-ten-second-triage-tool-april-2023.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          click here
-        </a>.
+        incidents. It uses the NHS Major Incident Triage Tool (MITT).
       </p>
       <h3 className="text-2xl font-black mt-4 mb-2">How it works</h3>
       <ol className="mb-2 pl-2 list-disc list-inside">
@@ -37,20 +26,28 @@ const InfoModal: FunctionComponent = () => (
           colour will update to reflect your choice.
         </li>
         <li>
-          Using the Triage Tool, review the casualty characteristics on the triage tag, treat appropriately and assign a priority.
+          Using the MITT flowchart, review the casualty characteristics on the triage tag, treat appropriately and assign a priority.
         </li>
         <li>
-          Not breathing is Silver. Severe bleeding, age under 2, not talking, or talking with a
-          penetrating torso injury is P1 (Red); can walk is P3 (Green); all other casualties are P2 (Yellow).
+          <strong>Catastrophic bleeding?</strong> If YES: apply Pressure Dressing, Tourniquet, Haemostatic Packing and assign <strong>P1 (Red)</strong>.
         </li>
         <li>
-          Exclusions from the tool are: can walk with severe bleeding is a P1 (Red), and children under 2 are automatically a P1 (Red).
+          <strong>Walking?</strong> If YES: assign <strong>P3 (Green)</strong>.
         </li>
         <li>
-          Appropriate treatments are any required immediate actions: apply pressure, a
-          tourniquet, or packing for severe bleeding; place non-talking
-          breathing casualties in the recovery position; or place in the recovery position and perform CPR if not
-          breathing (as resources allow).
+          <strong>Breathing?</strong> If NO: assign <strong>Dead (Black)</strong> (best practice is to place in the Recovery Position).
+        </li>
+        <li>
+          <strong>Responds to voice?</strong> If NO: Place in Recovery Position and assign <strong>P1 (Red)</strong>.
+        </li>
+        <li>
+          <strong>Aged over 2 years?</strong> If NO (2 years or under): assign <strong>P1 (Red)</strong>.
+        </li>
+        <li>
+          <strong>Breathing rate 12–23 /min?</strong> If NO: assign <strong>P1 (Red)</strong>.
+        </li>
+        <li>
+          <strong>Heart rate 100 bpm or more?</strong> If YES: assign <strong>P1 (Red)</strong>; if NO: assign <strong>P2 (Yellow)</strong>.
         </li>
         <li>
           You can use <Icon n="visibility" className='text-xl/6 align-bottom' /> in
@@ -61,7 +58,7 @@ const InfoModal: FunctionComponent = () => (
       </ol>
       <h3 className="text-2xl font-black mt-4 mb-2">About the project</h3>
       <p className="mb-2">
-        NHS TST Simulator is an open source project, you can find the code and
+        NHS MITT Simulator is an open source project, you can find the code and
         report issues or leave feedback in the{' '}
         <a
           className="underline underline-offset-2"

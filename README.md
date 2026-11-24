@@ -1,16 +1,16 @@
-# Ten Second Triage Tool
+# Major Incident Triage Tool (MITT) Simulator
 
-Ten Second Triage Tool is a simple web app that allows healthcare workers, emergency responders, and non-clinical responders to learn and become familiar with triage protocols for mass casualty incidents. The project aims to provide users with a readily available tool to test and refresh their triage skills. The app uses the NHS Ten Second Triage (TST) tool, with P1 (Red), P2 (Yellow), P3 (Green), and Not Breathing (Silver) categories.
+NHS MITT Simulator is a simple web app that allows healthcare workers and emergency responders to learn and become familiar with triage protocols for mass casualty incidents. The project aims to provide users with a readily available tool to test and refresh their triage skills using the NHS Major Incident Triage Tool (MITT), with P1 (Red), P2 (Yellow), P3 (Green), and Dead (Black) categories.
 
-Adapted by PastaStorm, 2026, for the NHS Ten Second Triage (TST) tool.
+Adapted by PastaStorm, 2026, for the NHS Major Incident Triage Tool (MITT).
 
-You can see the live deployment [here](https://ten-second-triage-simulator.pastastorm.workers.dev/).
+You can see the live deployment [here](https://workers.dev).
 
 ## Installation
 
 ```bash
 git clone https://github.com
-cd Ten-Second-Triage-simulator
+cd NHS-MITT-simulator
 npm install
 ```
 

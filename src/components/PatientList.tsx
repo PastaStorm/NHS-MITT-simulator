@@ -5,26 +5,27 @@ import { allPatients, useAppDispatch, useAppSelector } from '../store'
 import { setCurrentPatient, toggleFeedback } from '../store/ui'
 import { useGame, useHotkey } from '../hooks'
 import Icon from './Icon'
-import { type Code, Feedback, type Patient, TST } from '../algorithm'
+import { type Code, Feedback, type Patient, MITT } from '../algorithm'
 import { useTranslation } from 'react-i18next'
 import { useCallback } from 'preact/hooks'
 
 const INCORRECT_FEEDBACK = new Set<Feedback>([
   Feedback.CODE_INCORRECT,
-  Feedback.SEVERE_BLEEDING_ACTION,
-  Feedback.NOT_BREATHING_ACTION,
-  Feedback.NOT_TALKING_P1_ACTION,
-  Feedback.ACTION_INCORRECT,
-  Feedback.MISSING_ACTION,
-  Feedback.OVERTRIAGED_BREATHING,
-  Feedback.OVERTRIAGED_SEVERE_BLEEDING,
+  Feedback.BLEEDING_ACTION_MISSING,
+  Feedback.BLEEDING_ACTION_INCORRECT,
+  Feedback.RECOVERY_ACTION_MISSING,
+  Feedback.RECOVERY_ACTION_INCORRECT,
+  Feedback.OVERTRIAGED_CATASTROPHIC_BLEEDING,
   Feedback.OVERTRIAGED_WALKING,
-  Feedback.MISSING_PENETRATING_CHECK,
-  Feedback.OVERTRIAGED_NOT_TALKING,
+  Feedback.OVERTRIAGED_DEAD,
+  Feedback.OVERTRIAGED_NO_VOICE,
   Feedback.OVERTRIAGED_AGE_UNDER_TWO,
-  Feedback.ACTION_BLEEDING_INCORRECT,
-  Feedback.ACTION_RECOVERY_TALKING_INCORRECT,
-  Feedback.ACTION_CPR_BREATHING_INCORRECT,
+  Feedback.OVERTRIAGED_BREATHING_RATE,
+  Feedback.MISSING_CHECK_WALKING,
+  Feedback.MISSING_CHECK_BREATHING,
+  Feedback.MISSING_CHECK_VOICE,
+  Feedback.MISSING_CHECK_BREATHING_RATE,
+  Feedback.MISSING_CHECK_HEART_RATE,
 ])
 
 interface PatientDotProps {
@@ -41,7 +42,7 @@ const PatientDot: FunctionComponent<PatientDotProps> = ({ active, patient, onSel
     codeToColor(assignedCode as Code)
   )
 
-  const hasIncorrectFeedback = TST.getFeedback(patient).some((fb) => INCORRECT_FEEDBACK.has(fb))
+  const hasIncorrectFeedback = MITT.getFeedback(patient).some((fb) => INCORRECT_FEEDBACK.has(fb))
   const wrong = assignedCode !== 0 && (patient.code !== assignedCode || hasIncorrectFeedback)
 
   let icon = 'circle'

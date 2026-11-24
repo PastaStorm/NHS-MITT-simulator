@@ -1,5 +1,5 @@
 {
-  "name": "ten-second-triage-simulator",
+  "name": "nhs-mitt-simulator",
   "compatibility_date": "2025-09-01",
   "assets": {
     "directory": "./dist",

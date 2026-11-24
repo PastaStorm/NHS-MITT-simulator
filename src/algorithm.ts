@@ -1,7 +1,7 @@
 import { randomInt, randomBool } from './utils'
 
 export enum Code {
-  NOT_BREATHING = 4,
+  DEAD = 4,
   P1 = 3,
   P2 = 2,
   P3 = 1
@@ -12,76 +12,95 @@ export interface Patient {
   age: number
   code: Code
   assignedCode?: Code
+  catastrophicBleeding: boolean
   canWalk: boolean
-  severeBleeding: boolean
-  talking: boolean
   breathing: boolean
-  penetratingTorsoInjury: boolean
-  revealedWalking?: boolean
+  respondsToVoice: boolean
+  breathingRate: number
+  heartRate: number
   revealedBleeding?: boolean
-  revealedTalking?: boolean
-  revealedPenetrating?: boolean
+  revealedWalking?: boolean
   revealedBreathing?: boolean
+  revealedVoice?: boolean
+  revealedBreathingRate?: boolean
+  revealedHeartRate?: boolean
   actionBleeding?: boolean
   actionRecovery?: boolean
-  actionCPR?: boolean
 }
 
 export enum Feedback {
   CODE_NOT_ASSIGNED,
   CODE_CORRECT,
   CODE_INCORRECT,
-  NOT_BREATHING,
+  CATASTROPHIC_BLEEDING_P1,
   WALKING_P3,
   WALKING_P3_NOTE,
+  DEAD_NOT_BREATHING,
+  DEAD_RECOVERY_NOTE,
+  NO_VOICE_P1,
   AGE_UNDER_TWO_P1,
-  SEVERE_BLEEDING_P1,
-  NOT_TALKING_P1,
-  PENETRATING_INJURY_P1,
+  BREATHING_RATE_P1,
+  HEART_RATE_P1,
   OTHERWISE_P2,
-  SEVERE_BLEEDING_ACTION,
-  SEVERE_BLEEDING_ACTION_CORRECT,
-  NOT_BREATHING_ACTION,
-  NOT_BREATHING_ACTION_CORRECT,
-  NOT_TALKING_P1_ACTION,
-  NOT_TALKING_P1_ACTION_CORRECT,
-  SEVERE_BLEEDING_RECOVERY_NOTE,
-  SEVERE_BLEEDING_WALKING,
-  ACTION_INCORRECT,
-  MISSING_ACTION,
-  OVERTRIAGED_BREATHING,
-  OVERTRIAGED_SEVERE_BLEEDING,
+  BLEEDING_ACTION_MISSING,
+  BLEEDING_ACTION_CORRECT,
+  BLEEDING_ACTION_INCORRECT,
+  RECOVERY_ACTION_MISSING,
+  RECOVERY_ACTION_CORRECT,
+  RECOVERY_ACTION_INCORRECT,
+  OVERTRIAGED_CATASTROPHIC_BLEEDING,
   OVERTRIAGED_WALKING,
-  MISSING_PENETRATING_CHECK,
-  OVERTRIAGED_NOT_TALKING,
+  OVERTRIAGED_DEAD,
+  OVERTRIAGED_NO_VOICE,
   OVERTRIAGED_AGE_UNDER_TWO,
-  ACTION_BLEEDING_INCORRECT,
-  ACTION_RECOVERY_TALKING_INCORRECT,
-  ACTION_CPR_BREATHING_INCORRECT,
+  OVERTRIAGED_BREATHING_RATE,
+  MISSING_CHECK_WALKING,
+  MISSING_CHECK_BREATHING,
+  MISSING_CHECK_VOICE,
+  MISSING_CHECK_BREATHING_RATE,
+  MISSING_CHECK_HEART_RATE,
 }
 
-class TriageScoringTool {
+class MajorIncidentTriageTool {
   newPatient (id?: number): Patient {
     const age = randomInt(0, 80)
-    const breathing = randomBool(0.97)
-    const canWalk = breathing && age >= 2 ? randomBool(0.35) : false
-    const patient = {
+    const breathing = randomBool(0.95)
+    const catastrophicBleeding = breathing ? randomBool(0.18) : false
+    const canWalk = breathing && !catastrophicBleeding && age >= 2 ? randomBool(0.32) : false
+    const respondsToVoice = canWalk ? true : (breathing ? randomBool(0.82) : false)
+
+    let breathingRate = 0
+    let heartRate = 0
+    if (breathing) {
+      const abnormalRR = randomBool(0.25)
+      if (abnormalRR) {
+        breathingRate = randomBool(0.3) ? randomInt(6, 11) : randomInt(24, 38)
+      } else {
+        breathingRate = randomInt(12, 23)
+      }
+
+      const abnormalHR = randomBool(0.3)
+      heartRate = abnormalHR ? randomInt(100, 145) : randomInt(62, 99)
+    }
+
+    const patient: Patient = {
       id: id ?? randomInt(0, 500),
       age,
+      catastrophicBleeding,
       canWalk,
-      severeBleeding: breathing ? randomBool(0.2) : false,
-      talking: canWalk ? true : (breathing ? randomBool(0.85) : false),
       breathing,
-      penetratingTorsoInjury: randomBool(0.15),
+      respondsToVoice,
+      breathingRate,
+      heartRate,
       code: Code.P2,
-      revealedWalking: false,
       revealedBleeding: false,
-      revealedTalking: false,
-      revealedPenetrating: false,
+      revealedWalking: false,
       revealedBreathing: false,
+      revealedVoice: false,
+      revealedBreathingRate: false,
+      revealedHeartRate: false,
       actionBleeding: false,
-      actionRecovery: false,
-      actionCPR: false
+      actionRecovery: false
     }
 
     return { ...patient, code: this.getCode(patient) }
@@ -131,7 +150,7 @@ class TriageScoringTool {
       ]
 
       let availablePostures = lyingPostures
-      if (patient.breathing && patient.talking) {
+      if (patient.breathing && patient.respondsToVoice) {
         availablePostures = patient.canWalk
           ? [...lyingPostures, ...seatedPostures, ...uprightPostures]
           : [...lyingPostures, ...seatedPostures]
@@ -145,32 +164,24 @@ class TriageScoringTool {
       'appearing shaken with no obvious major wounds',
       `nursing a bruised ankle and smeared with soot`,
       `with a small graze across ${pronoun} forehead`,
-      `holding ${pronoun} wrist and looking dazed`
-    ]
-
-    const torsoCues = [
+      `holding ${pronoun} wrist and looking dazed`,
       `clutching ${pronoun} chest with torn clothing`,
       `holding a hand over ${pronoun} abdomen`,
-      `with a rip in ${pronoun} jacket over the torso`,
-      `guarding ${pronoun} ribs and wincing`,
-      `leaning forward with both hands pressed to ${pronoun} stomach`,
-      `with damaged clothing across ${pronoun} back and shoulder`
+      `guarding ${pronoun} ribs and wincing`
     ]
 
-    const sharedResponsiveCues = [...generalCues, ...torsoCues]
-
     let injuryCue: string
-    if (patient.severeBleeding) {
-      const severeBleedingCues = [
-        `with blood soaking through ${pronoun} clothing`,
-        `holding ${pronoun} right thigh with dark staining on ${pronoun} trousers`,
-        `with a blood-stained sleeve pressed against ${pronoun} arm`,
+    if (patient.catastrophicBleeding) {
+      const bleedingCues = [
+        `with heavy blood soaking through ${pronoun} clothing`,
+        `holding ${pronoun} right thigh with dark arterial staining on ${pronoun} trousers`,
+        `with a blood-soaked sleeve pressed against ${pronoun} arm`,
         `with pooling blood visible near ${pronoun} lower leg`,
-        `clutching a blood-soaked cloth to ${pronoun} upper leg`,
-        `with dark wet patches spreading across ${pronoun} jacket`
+        `clutching a blood-saturated cloth to ${pronoun} upper leg`,
+        `with dark wet patches rapidly spreading across ${pronoun} jacket`
       ]
-      injuryCue = severeBleedingCues[(seed >> 1) % severeBleedingCues.length]
-    } else if (!patient.breathing || !patient.talking) {
+      injuryCue = bleedingCues[(seed >> 1) % bleedingCues.length]
+    } else if (!patient.breathing || !patient.respondsToVoice) {
       const unresponsiveCues = [
         'with eyes closed and appearing very still',
         'not responding to the noise around them',
@@ -181,46 +192,25 @@ class TriageScoringTool {
       ]
       injuryCue = unresponsiveCues[(seed >> 1) % unresponsiveCues.length]
     } else {
-      injuryCue = sharedResponsiveCues[(seed >> 1) % sharedResponsiveCues.length]
+      injuryCue = generalCues[(seed >> 1) % generalCues.length]
     }
 
     return `${subject} ${posture} ${injuryCue}.`
   }
 
-  getCode (patient: Patient): Code {
-    if (!patient.breathing) return Code.NOT_BREATHING
-    if (patient.severeBleeding) return Code.P1
-    if (patient.canWalk) return Code.P3
-    if (patient.age < 2 || !patient.talking || patient.penetratingTorsoInjury) return Code.P1
+  getCode (p: Patient): Code {
+    if (p.catastrophicBleeding) return Code.P1
+    if (p.canWalk) return Code.P3
+    if (!p.breathing) return Code.DEAD
+    if (!p.respondsToVoice) return Code.P1
+    if (p.age < 2) return Code.P1
+    if (p.breathingRate < 12 || p.breathingRate > 23) return Code.P1
+    if (p.heartRate >= 100) return Code.P1
     return Code.P2
   }
 
-  getRequiredActions (patient: Patient): { bleeding: boolean, recovery: boolean, cpr: boolean } {
-    return {
-      bleeding: patient.severeBleeding,
-      recovery: !patient.talking && !patient.canWalk,
-      cpr: !patient.breathing
-    }
-  }
-
-  validateActions (patient: Patient): { valid: boolean, missing: boolean, incorrect: boolean } {
-    const required = this.getRequiredActions(patient)
-
-    const missing =
-      (required.bleeding && !patient.actionBleeding) ||
-      (required.recovery && !patient.actionRecovery) ||
-      (required.cpr && !patient.actionCPR)
-
-    const incorrect =
-      (!required.bleeding && Boolean(patient.actionBleeding)) ||
-      (!required.recovery && Boolean(patient.actionRecovery)) ||
-      (!required.cpr && Boolean(patient.actionCPR))
-
-    return { valid: !missing && !incorrect, missing, incorrect }
-  }
-
   getFeedback (p: Patient): Feedback[] {
-    const feedback = []
+    const feedback: Feedback[] = []
 
     if (p.assignedCode === undefined) {
       feedback.push(Feedback.CODE_NOT_ASSIGNED)
@@ -230,70 +220,78 @@ class TriageScoringTool {
       feedback.push(Feedback.CODE_CORRECT)
     }
 
-    if (!p.severeBleeding && p.actionBleeding) {
-      feedback.push(Feedback.ACTION_BLEEDING_INCORRECT)
-    }
-    if (p.actionRecovery && p.talking) {
-      feedback.push(Feedback.ACTION_RECOVERY_TALKING_INCORRECT)
-    }
-    if (p.actionCPR && p.breathing) {
-      feedback.push(Feedback.ACTION_CPR_BREATHING_INCORRECT)
-    }
-
-    if (!p.breathing) feedback.push(Feedback.NOT_BREATHING)
-    else if (p.canWalk && !p.severeBleeding) {
+    // Priority reason
+    if (p.catastrophicBleeding) {
+      feedback.push(Feedback.CATASTROPHIC_BLEEDING_P1)
+    } else if (p.canWalk) {
       feedback.push(Feedback.WALKING_P3)
       feedback.push(Feedback.WALKING_P3_NOTE)
-    } else if (p.canWalk && p.severeBleeding) {
-      feedback.push(Feedback.SEVERE_BLEEDING_WALKING)
-    } else if (p.age < 2) feedback.push(Feedback.AGE_UNDER_TWO_P1)
-    else if (p.severeBleeding) feedback.push(Feedback.SEVERE_BLEEDING_P1)
-    else if (!p.talking) feedback.push(Feedback.NOT_TALKING_P1)
-    else if (p.penetratingTorsoInjury) feedback.push(Feedback.PENETRATING_INJURY_P1)
-    else feedback.push(Feedback.OTHERWISE_P2)
+    } else if (!p.breathing) {
+      feedback.push(Feedback.DEAD_NOT_BREATHING)
+      feedback.push(Feedback.DEAD_RECOVERY_NOTE)
+    } else if (!p.respondsToVoice) {
+      feedback.push(Feedback.NO_VOICE_P1)
+    } else if (p.age < 2) {
+      feedback.push(Feedback.AGE_UNDER_TWO_P1)
+    } else if (p.breathingRate < 12 || p.breathingRate > 23) {
+      feedback.push(Feedback.BREATHING_RATE_P1)
+    } else if (p.heartRate >= 100) {
+      feedback.push(Feedback.HEART_RATE_P1)
+    } else {
+      feedback.push(Feedback.OTHERWISE_P2)
+    }
 
-    if (p.severeBleeding) {
+    // Required & improper actions
+    if (p.catastrophicBleeding) {
       if (p.actionBleeding) {
-        feedback.push(Feedback.SEVERE_BLEEDING_ACTION_CORRECT)
+        feedback.push(Feedback.BLEEDING_ACTION_CORRECT)
       } else {
-        feedback.push(Feedback.SEVERE_BLEEDING_ACTION)
+        feedback.push(Feedback.BLEEDING_ACTION_MISSING)
       }
+    } else if (p.actionBleeding) {
+      feedback.push(Feedback.BLEEDING_ACTION_INCORRECT)
     }
 
-    if (!p.talking && !p.canWalk) {
+    if (p.breathing && !p.respondsToVoice && !p.catastrophicBleeding && !p.canWalk) {
       if (p.actionRecovery) {
-        feedback.push(Feedback.NOT_TALKING_P1_ACTION_CORRECT)
+        feedback.push(Feedback.RECOVERY_ACTION_CORRECT)
       } else {
-        feedback.push(Feedback.NOT_TALKING_P1_ACTION)
+        feedback.push(Feedback.RECOVERY_ACTION_MISSING)
       }
+    } else if (p.actionRecovery && p.respondsToVoice) {
+      feedback.push(Feedback.RECOVERY_ACTION_INCORRECT)
     }
 
-    if (!p.breathing) {
-      if (p.actionCPR) {
-        feedback.push(Feedback.NOT_BREATHING_ACTION_CORRECT)
-      } else {
-        feedback.push(Feedback.NOT_BREATHING_ACTION)
-      }
+    // Missed checks along the MITT pathway
+    if (!p.catastrophicBleeding && !p.revealedWalking) {
+      feedback.push(Feedback.MISSING_CHECK_WALKING)
+    } else if (!p.catastrophicBleeding && !p.canWalk && !p.revealedBreathing) {
+      feedback.push(Feedback.MISSING_CHECK_BREATHING)
+    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && !p.revealedVoice) {
+      feedback.push(Feedback.MISSING_CHECK_VOICE)
+    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && p.age >= 2 && !p.revealedBreathingRate) {
+      feedback.push(Feedback.MISSING_CHECK_BREATHING_RATE)
+    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && p.age >= 2 && p.breathingRate >= 12 && p.breathingRate <= 23 && !p.revealedHeartRate) {
+      feedback.push(Feedback.MISSING_CHECK_HEART_RATE)
     }
 
-    if (p.breathing && !p.severeBleeding && !p.canWalk && p.age >= 2 && p.talking && !p.revealedPenetrating) {
-      feedback.push(Feedback.MISSING_PENETRATING_CHECK)
-    }
-
-    if (p.severeBleeding && (p.revealedTalking || p.revealedPenetrating || p.revealedBreathing)) {
-      feedback.push(Feedback.OVERTRIAGED_SEVERE_BLEEDING)
-    } else if (p.canWalk && (p.revealedTalking || p.revealedPenetrating || p.revealedBreathing)) {
+    // Overtriage checks
+    if (p.catastrophicBleeding && (p.revealedWalking || p.revealedBreathing || p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
+      feedback.push(Feedback.OVERTRIAGED_CATASTROPHIC_BLEEDING)
+    } else if (p.canWalk && (p.revealedBreathing || p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_WALKING)
-    } else if (p.breathing && p.age < 2 && (p.revealedWalking || p.revealedTalking || p.revealedPenetrating || p.revealedBreathing)) {
+    } else if (!p.breathing && (p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
+      feedback.push(Feedback.OVERTRIAGED_DEAD)
+    } else if (!p.respondsToVoice && (p.revealedBreathingRate || p.revealedHeartRate)) {
+      feedback.push(Feedback.OVERTRIAGED_NO_VOICE)
+    } else if (p.age < 2 && (p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_AGE_UNDER_TWO)
-    } else if (!p.talking && p.revealedPenetrating) {
-      feedback.push(Feedback.OVERTRIAGED_NOT_TALKING)
-    } else if (p.talking && p.revealedBreathing) {
-      feedback.push(Feedback.OVERTRIAGED_BREATHING)
+    } else if ((p.breathingRate < 12 || p.breathingRate > 23) && p.revealedHeartRate) {
+      feedback.push(Feedback.OVERTRIAGED_BREATHING_RATE)
     }
 
     return feedback
   }
 }
 
-export const TST = new TriageScoringTool()
+export const MITT = new MajorIncidentTriageTool()
