@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { patientsAdapter } from './patients'
 import { type RootState } from '.'
-import { TST } from '../algorithm'
+import { MITT } from '../algorithm'
 
 export const {
   selectById: patientById,
@@ -15,7 +15,7 @@ export const selectTriagedPatients = createSelector(
 
 export const selectCorrectlyTriagedPatients = createSelector(
   [selectTriagedPatients],
-  patients => patients.filter(p => p.code === p.assignedCode && TST.validateActions(p).valid)
+  patients => patients.filter(p => p.code === p.assignedCode && MITT.validateActions(p).valid)
 )
 
 export const selectUndertriagedPatients = createSelector(
@@ -30,15 +30,15 @@ export const selectOvertriagedPatients = createSelector(
 
 export const selectMissedActionsPatients = createSelector(
   [selectTriagedPatients],
-  patients => patients.filter(p => TST.validateActions(p).missing)
+  patients => patients.filter(p => MITT.validateActions(p).missing)
 )
 
 export const selectIncorrectActionsPatients = createSelector(
   [selectTriagedPatients],
-  patients => patients.filter(p => TST.validateActions(p).incorrect)
+  patients => patients.filter(p => MITT.validateActions(p).incorrect)
 )
 
 export const selectSevereBleedingPatients = createSelector(
   [allPatients],
-  patients => patients.filter(({ severeBleeding }) => severeBleeding)
+  patients => patients.filter(({ catastrophicBleeding }) => catastrophicBleeding)
 )
