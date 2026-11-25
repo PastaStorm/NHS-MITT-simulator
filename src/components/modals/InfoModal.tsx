@@ -50,6 +50,12 @@ const InfoModal: FunctionComponent = () => (
           <strong>Heart rate 100 bpm or more?</strong> If YES: assign <strong>P1 (Red)</strong>; if NO: assign <strong>P2 (Yellow)</strong>.
         </li>
         <li>
+          <strong>Why penetrating injury is not on MITT:</strong> TST includes penetrating torso injury to help non-clinical responders rapidly identify casualties at risk of sudden deterioration without measuring vital signs. When clinical responders reassess casualties using MITT, triage is based on current physiological parameters rather than injury mechanism alone.
+        </li>
+        <li>
+          <strong>Clinical judgement override:</strong> Triage is dynamic—if a casualty with a penetrating torso injury is physiologically compensating (normal breathing rate, heart rate, and responsiveness), strict MITT scoring assigns <strong>P2 (Yellow)</strong>, while allowing clinicians to override the tool and upgrade/maintain <strong>P1 (Red)</strong> based on clinical judgement.
+        </li>
+        <li>
           You can use <Icon n="visibility" className='text-xl/6 align-bottom' /> in
           the casualty list to show which casualties have been correctly
           triaged and to show individual feedback on each casualty under their
