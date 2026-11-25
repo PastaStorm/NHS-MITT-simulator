@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'preact/hooks'
-import { TST } from './algorithm'
+import { MITT } from './algorithm'
 import { useAppDispatch, useAppSelector } from './store'
 import { addPatient, clearPatients } from './store/patients'
 import { closeModal, openModal, setCurrentPatient } from './store/ui'
@@ -9,7 +9,7 @@ export const useGame = (): { newGame: () => void } => {
 
   const newGame = useCallback((): void => {
     dispatch(clearPatients())
-    dispatch(addPatient(new Array(80).fill(0).map((_, i) => TST.newPatient(i + 1))))
+    dispatch(addPatient(new Array(80).fill(0).map((_, i) => MITT.newPatient(i + 1))))
     dispatch(setCurrentPatient(undefined))
   }, [dispatch])
 
