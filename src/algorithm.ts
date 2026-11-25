@@ -22,6 +22,7 @@ export interface Patient {
   revealedWalking?: boolean
   revealedBreathing?: boolean
   revealedVoice?: boolean
+  revealedAgeOverTwo?: boolean
   revealedBreathingRate?: boolean
   revealedHeartRate?: boolean
   actionBleeding?: boolean
@@ -57,6 +58,7 @@ export enum Feedback {
   MISSING_CHECK_WALKING,
   MISSING_CHECK_BREATHING,
   MISSING_CHECK_VOICE,
+  MISSING_CHECK_AGE_OVER_TWO,
   MISSING_CHECK_BREATHING_RATE,
   MISSING_CHECK_HEART_RATE,
 }
@@ -66,7 +68,7 @@ class MajorIncidentTriageTool {
     const age = randomInt(0, 80)
     const breathing = randomBool(0.95)
     const catastrophicBleeding = breathing ? randomBool(0.18) : false
-    const canWalk = breathing && !catastrophicBleeding && age >= 2 ? randomBool(0.32) : false
+    const canWalk = breathing && !catastrophicBleeding && age > 2 ? randomBool(0.32) : false
     const respondsToVoice = canWalk ? true : (breathing ? randomBool(0.82) : false)
 
     let breathingRate = 0
@@ -97,6 +99,7 @@ class MajorIncidentTriageTool {
       revealedWalking: false,
       revealedBreathing: false,
       revealedVoice: false,
+      revealedAgeOverTwo: false,
       revealedBreathingRate: false,
       revealedHeartRate: false,
       actionBleeding: false,
@@ -112,7 +115,7 @@ class MajorIncidentTriageTool {
     const pronoun = sex === 'male' ? 'his' : 'her'
 
     let subject: string
-    if (patient.age < 2) {
+    if (patient.age <= 2) {
       subject = `An infant (${sex})`
     } else if (patient.age < 12) {
       subject = `A ${sex} child`
@@ -125,7 +128,7 @@ class MajorIncidentTriageTool {
     }
 
     let posture: string
-    if (patient.age < 2) {
+    if (patient.age <= 2) {
       posture = [
         'being held near the scene',
         'lying on a blanket on the ground',
@@ -203,7 +206,7 @@ class MajorIncidentTriageTool {
     if (p.canWalk) return Code.P3
     if (!p.breathing) return Code.DEAD
     if (!p.respondsToVoice) return Code.P1
-    if (p.age < 2) return Code.P1
+    if (p.age <= 2) return Code.P1
     if (p.breathingRate < 12 || p.breathingRate > 23) return Code.P1
     if (p.heartRate >= 100) return Code.P1
     return Code.P2
@@ -247,7 +250,7 @@ class MajorIncidentTriageTool {
       feedback.push(Feedback.DEAD_RECOVERY_NOTE)
     } else if (!p.respondsToVoice) {
       feedback.push(Feedback.NO_VOICE_P1)
-    } else if (p.age < 2) {
+    } else if (p.age <= 2) {
       feedback.push(Feedback.AGE_UNDER_TWO_P1)
     } else if (p.breathingRate < 12 || p.breathingRate > 23) {
       feedback.push(Feedback.BREATHING_RATE_P1)
@@ -285,22 +288,24 @@ class MajorIncidentTriageTool {
       feedback.push(Feedback.MISSING_CHECK_BREATHING)
     } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && !p.revealedVoice) {
       feedback.push(Feedback.MISSING_CHECK_VOICE)
-    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && p.age >= 2 && !p.revealedBreathingRate) {
+    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && !p.revealedAgeOverTwo) {
+      feedback.push(Feedback.MISSING_CHECK_AGE_OVER_TWO)
+    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && p.age > 2 && !p.revealedBreathingRate) {
       feedback.push(Feedback.MISSING_CHECK_BREATHING_RATE)
-    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && p.age >= 2 && p.breathingRate >= 12 && p.breathingRate <= 23 && !p.revealedHeartRate) {
+    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && p.age > 2 && p.breathingRate >= 12 && p.breathingRate <= 23 && !p.revealedHeartRate) {
       feedback.push(Feedback.MISSING_CHECK_HEART_RATE)
     }
 
     // Overtriage checks
-    if (p.catastrophicBleeding && (p.revealedWalking || p.revealedBreathing || p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
+    if (p.catastrophicBleeding && (p.revealedWalking || p.revealedBreathing || p.revealedVoice || p.revealedAgeOverTwo || p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_CATASTROPHIC_BLEEDING)
-    } else if (p.canWalk && (p.revealedBreathing || p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
+    } else if (p.canWalk && (p.revealedBreathing || p.revealedVoice || p.revealedAgeOverTwo || p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_WALKING)
-    } else if (!p.breathing && (p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
+    } else if (!p.breathing && (p.revealedVoice || p.revealedAgeOverTwo || p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_DEAD)
-    } else if (!p.respondsToVoice && (p.revealedBreathingRate || p.revealedHeartRate)) {
+    } else if (!p.respondsToVoice && (p.revealedAgeOverTwo || p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_NO_VOICE)
-    } else if (p.age < 2 && (p.revealedBreathingRate || p.revealedHeartRate)) {
+    } else if (p.age <= 2 && (p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_AGE_UNDER_TWO)
     } else if ((p.breathingRate < 12 || p.breathingRate > 23) && p.revealedHeartRate) {
       feedback.push(Feedback.OVERTRIAGED_BREATHING_RATE)
