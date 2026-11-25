@@ -8,36 +8,36 @@ const InfoModal: FunctionComponent = () => (
   <Modal name={INFO_MODAL_ID} title='About'>
     <div className="text-lg/6">
       <p className="mb-2">
-        Welcome to <strong>NHS MITT Simulator</strong>! This app allows you to
-        learn and gain familiarity with triage protocols for mass casualty
-        incidents. It uses the NHS Major Incident Triage Tool (MITT).
+        Welcome to <strong>NHS MITT Simulator</strong>! This tool helps you
+        practise and build familiarity with mass casualty triage using the NHS
+        Major Incident Triage Tool (MITT).
       </p>
       <p className="mb-2">
-        For the Major Incident Triage Tool (MITT){' '}
+        View the official NHS England{' '}
         <a
           className="underline underline-offset-2"
-          href="https://www.england.nhs.uk/long-read/nhs-major-incident-triage-tool-mitt/"
+          href="https://england.nhs.uk"
           target="_blank"
           rel="noopener noreferrer"
         >
-          click here
+          Major Incident Triage Tool (MITT)
         </a>.
       </p>
       <h3 className="text-2xl font-black mt-4 mb-2">How it works</h3>
       <ol className="mb-2 pl-2 list-disc list-inside">
         <li>
-          Use <strong><Icon n="add" className='text-xl/6 align-bottom' /> New
-            disaster</strong> to generate a new set of casualties. You can always
-          use <strong><Icon n="restart_alt" className='text-xl/6 align-bottom' /> New
-          game</strong> to get another one.
+          Click <strong><Icon n="add" className='text-xl/6 align-bottom' /> New
+          disaster</strong> (or <strong><Icon n="restart_alt" className='text-xl/6 align-bottom' /> New
+          disaster</strong> in the top toolbar) to generate a new set of casualties.
         </li>
         <li>
-          Your casualty list displays your casualties. Click on a casualty dot to open
-          their triage tag. Once you have assigned a code to a casualty, its
-          colour will update to reflect your choice.
+          Select any dot in the casualty list to open that casualty’s triage
+          tag. Once you assign a priority, the dot’s colour updates to reflect
+          your choice.
         </li>
         <li>
-          Using the MITT flowchart, review the casualty characteristics on the triage tag, treat appropriately and assign a priority.
+          Follow the MITT flowchart to assess each casualty’s characteristics,
+          perform any required immediate interventions, and assign a priority.
         </li>
         <li>
           <strong>Catastrophic bleeding?</strong> If YES: apply Pressure Dressing, Tourniquet, Haemostatic Packing and assign <strong>P1 (Red)</strong>.
@@ -64,26 +64,25 @@ const InfoModal: FunctionComponent = () => (
           <strong>Why penetrating injury is not on MITT:</strong> TST includes penetrating torso injury to help non-clinical responders rapidly identify casualties at risk of sudden deterioration without measuring vital signs. When clinical responders reassess casualties using MITT, triage is based on current physiological parameters rather than injury mechanism alone.
         </li>
         <li>
-          <strong>Clinical judgement override:</strong> Triage is dynamic—if a casualty with a penetrating torso injury is physiologically compensating (normal breathing rate, heart rate, and responsiveness), strict MITT scoring assigns <strong>P2 (Yellow)</strong>, while allowing clinicians to override the tool and upgrade/maintain <strong>P1 (Red)</strong> based on clinical judgement.
+          <strong>Clinical judgement override:</strong> Triage is dynamic—if a casualty with a penetrating torso injury is physiologically compensating (normal breathing rate, heart rate, and responsiveness), strict MITT scoring assigns <strong>P2 (Yellow)</strong>, while allowing clinicians to override the tool and upgrade or maintain <strong>P1 (Red)</strong> based on clinical judgement.
         </li>
         <li>
-          You can use <Icon n="visibility" className='text-xl/6 align-bottom' /> in
-          the casualty list to show which casualties have been correctly
-          triaged and to show individual feedback on each casualty under their
-          triage tag.
+          Use <Icon n="visibility" className='text-xl/6 align-bottom' /> in the
+          casualty list to reveal your results and view individual clinical
+          feedback beneath each triage tag.
         </li>
       </ol>
       <h3 className="text-2xl font-black mt-4 mb-2">About the project</h3>
       <p className="mb-2">
-        NHS MITT Simulator is an open source project, you can find the code and
-        report issues or leave feedback in the{' '}
+        NHS MITT Simulator is an open-source project. You can view the source
+        code, report issues, or leave feedback in the{' '}
         <a
           className="underline underline-offset-2"
           href="https://github.com"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Github repository
+          GitHub repository
         </a>.
         You are currently running version {COMMIT_HASH}.
       </p>
