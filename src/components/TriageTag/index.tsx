@@ -6,7 +6,6 @@ import TagRow from './TagRow'
 import TagCell from './TagCell'
 import TagTool from './TagTool'
 import TagCodeButton from './TagCodeButton'
-import CasualtyIllustration from './CasualtyIllustration'
 import Card from '../Card'
 import { useTranslation } from 'react-i18next'
 import { useCallback } from 'preact/hooks'
@@ -58,12 +57,9 @@ const TriageTag: FunctionComponent = () => {
     <Card className='h-min'>
       <TagRow border>
         <TagCell title={t('Triage tag')} span={9} wrap>
-          <div className='flex items-center gap-3'>
-            <CasualtyIllustration patient={patient} />
-            <p className='text-sm md:text-base font-normal text-gray-800 leading-snug'>
-              {MITT.getVisualDescription(patient)}
-            </p>
-          </div>
+          <p className='text-sm md:text-base font-normal text-gray-800 leading-snug'>
+            {MITT.getVisualDescription(patient)}
+          </p>
         </TagCell>
         <TagCell title={t('Age')} span={3}>{t('{{age}} yrs', { age: patient.age })}</TagCell>
       </TagRow>
