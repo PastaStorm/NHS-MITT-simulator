@@ -12,6 +12,17 @@ const InfoModal: FunctionComponent = () => (
         learn and gain familiarity with triage protocols for mass casualty
         incidents. It uses the NHS Major Incident Triage Tool (MITT).
       </p>
+      <p className="mb-2">
+        For the Major Incident Triage Tool (MITT){' '}
+        <a
+          className="underline underline-offset-2"
+          href="https://www.england.nhs.uk/long-read/nhs-major-incident-triage-tool-mitt/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          click here
+        </a>.
+      </p>
       <h3 className="text-2xl font-black mt-4 mb-2">How it works</h3>
       <ol className="mb-2 pl-2 list-disc list-inside">
         <li>
