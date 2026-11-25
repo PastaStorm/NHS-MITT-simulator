@@ -22,7 +22,6 @@ export interface Patient {
   revealedWalking?: boolean
   revealedBreathing?: boolean
   revealedVoice?: boolean
-  revealedAgeOverTwo?: boolean
   revealedBreathingRate?: boolean
   revealedHeartRate?: boolean
   actionBleeding?: boolean
@@ -55,10 +54,10 @@ export enum Feedback {
   OVERTRIAGED_NO_VOICE,
   OVERTRIAGED_AGE_UNDER_TWO,
   OVERTRIAGED_BREATHING_RATE,
+  MISSING_CHECK_BLEEDING,
   MISSING_CHECK_WALKING,
   MISSING_CHECK_BREATHING,
   MISSING_CHECK_VOICE,
-  MISSING_CHECK_AGE_OVER_TWO,
   MISSING_CHECK_BREATHING_RATE,
   MISSING_CHECK_HEART_RATE,
 }
@@ -99,7 +98,6 @@ class MajorIncidentTriageTool {
       revealedWalking: false,
       revealedBreathing: false,
       revealedVoice: false,
-      revealedAgeOverTwo: false,
       revealedBreathingRate: false,
       revealedHeartRate: false,
       actionBleeding: false,
@@ -281,29 +279,29 @@ class MajorIncidentTriageTool {
       feedback.push(Feedback.RECOVERY_ACTION_INCORRECT)
     }
 
-    // Missed checks along the MITT pathway
-    if (!p.catastrophicBleeding && !p.revealedWalking) {
+    // Missed checks along the MITT pathway (always starts with Catastrophic Bleeding, stops at Age <= 2 before vitals)
+    if (!p.revealedBleeding) {
+      feedback.push(Feedback.MISSING_CHECK_BLEEDING)
+    } else if (!p.catastrophicBleeding && !p.revealedWalking) {
       feedback.push(Feedback.MISSING_CHECK_WALKING)
     } else if (!p.catastrophicBleeding && !p.canWalk && !p.revealedBreathing) {
       feedback.push(Feedback.MISSING_CHECK_BREATHING)
     } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && !p.revealedVoice) {
       feedback.push(Feedback.MISSING_CHECK_VOICE)
-    } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && !p.revealedAgeOverTwo) {
-      feedback.push(Feedback.MISSING_CHECK_AGE_OVER_TWO)
     } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && p.age > 2 && !p.revealedBreathingRate) {
       feedback.push(Feedback.MISSING_CHECK_BREATHING_RATE)
     } else if (!p.catastrophicBleeding && !p.canWalk && p.breathing && p.respondsToVoice && p.age > 2 && p.breathingRate >= 12 && p.breathingRate <= 23 && !p.revealedHeartRate) {
       feedback.push(Feedback.MISSING_CHECK_HEART_RATE)
     }
 
-    // Overtriage checks
-    if (p.catastrophicBleeding && (p.revealedWalking || p.revealedBreathing || p.revealedVoice || p.revealedAgeOverTwo || p.revealedBreathingRate || p.revealedHeartRate)) {
+    // Overtriage checks (for age <= 2, only Breathing Rate or Heart Rate counts as overtriage)
+    if (p.catastrophicBleeding && (p.revealedWalking || p.revealedBreathing || p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_CATASTROPHIC_BLEEDING)
-    } else if (p.canWalk && (p.revealedBreathing || p.revealedVoice || p.revealedAgeOverTwo || p.revealedBreathingRate || p.revealedHeartRate)) {
+    } else if (p.canWalk && (p.revealedBreathing || p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_WALKING)
-    } else if (!p.breathing && (p.revealedVoice || p.revealedAgeOverTwo || p.revealedBreathingRate || p.revealedHeartRate)) {
+    } else if (!p.breathing && (p.revealedVoice || p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_DEAD)
-    } else if (!p.respondsToVoice && (p.revealedAgeOverTwo || p.revealedBreathingRate || p.revealedHeartRate)) {
+    } else if (!p.respondsToVoice && (p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_NO_VOICE)
     } else if (p.age <= 2 && (p.revealedBreathingRate || p.revealedHeartRate)) {
       feedback.push(Feedback.OVERTRIAGED_AGE_UNDER_TWO)
