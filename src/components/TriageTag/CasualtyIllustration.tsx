@@ -99,13 +99,13 @@ const CasualtyIllustration: FunctionComponent<CasualtyIllustrationProps> = ({ pa
       </g>`
   }
 
-  const svg = `<svg xmlns="http://w3.org" viewBox="0 0 140 110"><rect x="0" y="84" width="140" height="26" fill="#e2e8f0"/><line x1="10" y1="84" x2="130" y2="84" stroke="#cbd5e1" stroke-width="1.5"/>${figureSvg}</svg>`
-  const src = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+  const svg = `<svg xmlns="http://w3.org" viewBox="0 0 140 110" class="w-full h-full" aria-hidden="true"><rect x="0" y="84" width="140" height="26" fill="#e2e8f0"/><line x1="10" y1="84" x2="130" y2="84" stroke="#cbd5e1" stroke-width="1.5"/>${figureSvg}</svg>`
 
   return (
-    <div className="w-28 h-24 shrink-0 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
-      <img src={src} alt="" className="w-full h-full object-cover" />
-    </div>
+    <div
+      className="w-28 h-24 shrink-0 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center"
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
   )
 }
 
