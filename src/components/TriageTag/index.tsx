@@ -75,16 +75,13 @@ const TriageTag: FunctionComponent = () => {
         </TagCell>
       </TagRow>
       <TagRow>
-        <TagCell title={t('Responds to voice?')} span={3}>
+        <TagCell title={t('Responds to voice?')} span={4}>
           {patient.revealedVoice ? (patient.respondsToVoice ? t('Yes') : t('No')) : '--'}
         </TagCell>
-        <TagCell title={t('Aged over 2 years?')} span={3}>
-          {patient.revealedAgeOverTwo ? (patient.age > 2 ? t('Yes') : t('No')) : '--'}
-        </TagCell>
-        <TagCell title={t('Breathing rate')} span={3}>
+        <TagCell title={t('Breathing rate')} span={4}>
           {patient.revealedBreathingRate ? (patient.breathing ? `${patient.breathingRate} /min` : '0 /min') : '--'}
         </TagCell>
-        <TagCell title={t('Heart rate')} span={3}>
+        <TagCell title={t('Heart rate')} span={4}>
           {patient.revealedHeartRate ? (patient.breathing ? `${patient.heartRate} bpm` : '0 bpm') : '--'}
         </TagCell>
       </TagRow>
@@ -92,12 +89,11 @@ const TriageTag: FunctionComponent = () => {
       <h4 className='text-xs font-bold uppercase tracking-wider text-gray-500 mt-4 mb-1 px-1'>
         {t('Characteristics')}
       </h4>
-      <div className='grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 h-auto lg:h-20 text-white gap-1 mb-2'>
+      <div className='grid grid-cols-3 md:grid-cols-6 h-auto md:h-20 text-white gap-1 mb-2'>
         <TagTool title={t('Check catastrophic bleeding')} label={t('Catastrophic bleeding?')} id='reveal-bleeding' onClick={() => toggleRevealCharacteristic('Bleeding')} active={patient.revealedBleeding} bgColor='bg-blue-600' />
         <TagTool title={t('Check walking')} label={t('Walking?')} id='reveal-walking' onClick={() => toggleRevealCharacteristic('Walking')} active={patient.revealedWalking} bgColor='bg-blue-600' />
         <TagTool title={t('Check breathing')} label={t('Breathing?')} id='reveal-breathing' onClick={() => toggleRevealCharacteristic('Breathing')} active={patient.revealedBreathing} bgColor='bg-blue-600' />
         <TagTool title={t('Check responds to voice')} label={t('Responds to voice?')} id='reveal-voice' onClick={() => toggleRevealCharacteristic('Voice')} active={patient.revealedVoice} bgColor='bg-blue-600' />
-        <TagTool title={t('Check aged over 2 years')} label={t('Aged over 2 years?')} id='reveal-age-over-two' onClick={() => toggleRevealCharacteristic('AgeOverTwo')} active={patient.revealedAgeOverTwo} bgColor='bg-blue-600' />
         <TagTool title={t('Check breathing rate')} label={t('Breathing rate')} id='reveal-rr' onClick={() => toggleRevealCharacteristic('BreathingRate')} active={patient.revealedBreathingRate} bgColor='bg-blue-600' />
         <TagTool title={t('Check heart rate')} label={t('Heart rate')} id='reveal-hr' onClick={() => toggleRevealCharacteristic('HeartRate')} active={patient.revealedHeartRate} bgColor='bg-blue-600' />
       </div>
