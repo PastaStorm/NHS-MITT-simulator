@@ -209,6 +209,22 @@ class MajorIncidentTriageTool {
     return Code.P2
   }
 
+  validateActions (p: Patient): { valid: boolean, missing: boolean, incorrect: boolean } {
+    const requiredBleeding = p.catastrophicBleeding
+    const requiredRecovery = p.breathing && !p.respondsToVoice && !p.catastrophicBleeding && !p.canWalk
+    const optionalRecovery = !p.breathing
+
+    const missing =
+      (requiredBleeding && !p.actionBleeding) ||
+      (requiredRecovery && !p.actionRecovery)
+
+    const incorrect =
+      (!requiredBleeding && Boolean(p.actionBleeding)) ||
+      (!requiredRecovery && !optionalRecovery && Boolean(p.actionRecovery))
+
+    return { valid: !missing && !incorrect, missing, incorrect }
+  }
+
   getFeedback (p: Patient): Feedback[] {
     const feedback: Feedback[] = []
 
